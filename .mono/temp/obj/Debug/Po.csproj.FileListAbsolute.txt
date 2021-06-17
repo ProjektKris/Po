@@ -1,8 +1,0 @@
-C:\Users\Kristopher\Documents\GDProjects\Po\.mono\temp\bin\Debug\Po.dll
-C:\Users\Kristopher\Documents\GDProjects\Po\.mono\temp\bin\Debug\Po.pdb
-C:\Users\Kristopher\Documents\GDProjects\Po\.mono\temp\obj\Debug\Po.csprojAssemblyReference.cache
-C:\Users\Kristopher\Documents\GDProjects\Po\.mono\temp\obj\Debug\Po.AssemblyInfoInputs.cache
-C:\Users\Kristopher\Documents\GDProjects\Po\.mono\temp\obj\Debug\Po.AssemblyInfo.cs
-C:\Users\Kristopher\Documents\GDProjects\Po\.mono\temp\obj\Debug\Po.csproj.CoreCompileInputs.cache
-C:\Users\Kristopher\Documents\GDProjects\Po\.mono\temp\obj\Debug\Po.dll
-C:\Users\Kristopher\Documents\GDProjects\Po\.mono\temp\obj\Debug\Po.pdb
