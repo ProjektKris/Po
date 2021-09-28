@@ -91,6 +91,9 @@ public class Main : Node2D
         StaticBody2D newObstacle = (StaticBody2D)groundObstacleScene.Instance();
         AddChild(newObstacle);
         newObstacle.Position = obstacleStartPos.Position;
+
+        // rng for next timeout
+        obstacleTimer.WaitTime = (float)GD.RandRange(1.5f, 3f);
     }
     public void onScoreTimerTimeout()
     {
