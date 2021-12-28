@@ -85,7 +85,8 @@ public class Main : Node2D
 
         // play music
     }
-    public void onObstacleTimerTimeout() {
+    public void onObstacleTimerTimeout()
+    {
         GD.Print("spawning ground obstacle");
 
         StaticBody2D newObstacle = (StaticBody2D)groundObstacleScene.Instance();
@@ -102,7 +103,8 @@ public class Main : Node2D
         UI.Call("updateScore", score);
     }
 
-    public void onStartTimerTimeout() {
+    public void onStartTimerTimeout()
+    {
         GD.Print("start timer timeout");
         scoreTimer.Start();
         obstacleTimer.Start();
