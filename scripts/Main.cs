@@ -3,111 +3,99 @@ using System;
 
 public class Main : Node2D
 {
-    // signals
-    [Signal] delegate void game_ended();
-
-    // exported variables
     [Export] PackedScene groundObstacleScene;
-    [Export] public float starting_speed = 400f;
-    [Export] public float speed_acceleration = 20f; // +xspeed/second
 
-    // variables
     private int score;
 
-    // nodes
-    private RigidBody2D player;
-    private CanvasLayer UI;
-    private Timer scoreTimer;
-    private Timer obstacleTimer;
-    private Timer startTimer;
-    private StaticBody2D[] loaded_obstacles;
+    private RigidBody2D _player;
+    private CanvasLayer _ui;
+    private Timer _scoreTimer;
+    private Timer _obstacleTimer;
+    private Timer _startTimer;
 
-    private Position2D playerPosition;
-    private Position2D obstacleStartPos;
+    private Position2D _playerPosition;
+    private Position2D _obstacleStartPos;
 
 
     public override void _Ready()
     {
-        // assign variables
-        groundObstacleScene = (PackedScene)ResourceLoader.Load("res://scenes/GroundObstacle.tscn");
-
-        player = GetNode<RigidBody2D>("Player");
-        UI = GetNode<CanvasLayer>("UI");
-        scoreTimer = GetNode<Timer>("ScoreTimer");
-        obstacleTimer = GetNode<Timer>("ObstacleTimer");
-        startTimer = GetNode<Timer>("StartTimer");
-        playerPosition = GetNode<Position2D>("PlayerPosition");
-        obstacleStartPos = GetNode<Position2D>("GroundObstacleStart");
+        _player = GetNode<RigidBody2D>("Player");
+        _ui = GetNode<CanvasLayer>("UI");
+        _scoreTimer = GetNode<Timer>("ScoreTimer");
+        _obstacleTimer = GetNode<Timer>("ObstacleTimer");
+        _startTimer = GetNode<Timer>("StartTimer");
+        _playerPosition = GetNode<Position2D>("PlayerPosition");
+        _obstacleStartPos = GetNode<Position2D>("GroundObstacleStart");
 
         // signals
-        UI.Connect("startGame", this, nameof(newGame));
-        obstacleTimer.Connect("timeout", this, nameof(onObstacleTimerTimeout));
-        scoreTimer.Connect("timeout", this, nameof(onScoreTimerTimeout));
-        startTimer.Connect("timeout", this, nameof(onStartTimerTimeout));
-        player.Connect("hit", this, nameof(gameOver));
+        _ui.Connect("StartGame", this, nameof(NewGame));
+        _obstacleTimer.Connect("timeout", this, nameof(ObstacleTimerTimeoutHandler));
+        _scoreTimer.Connect("timeout", this, nameof(ScoreTimerTimeoutHandler));
+        _startTimer.Connect("timeout", this, nameof(StartTimerTimeoutHandler));
+        _player.Connect("Hit", this, nameof(GameOver));
     }
     // public override void _Process(float delta)
     // {
 
     // }
-    public void gameOver()
+    public void GameOver()
     {
         // stop score timer
-        scoreTimer.Stop();
+        _scoreTimer.Stop();
 
         // stop obstacle timer
-        obstacleTimer.Stop();
+        _obstacleTimer.Stop();
 
         // show hud game over
-        UI.Call("showGameOver");
+        _ui.Call("ShowGameOver");
 
         // remove old enemies
         GetTree().CallGroup("obstacle", "queue_free");
 
         // stop music
     }
-    void newGame()
+    public void NewGame()
     {
         // reset score
         score = 0;
 
         // set player position
-        player.Call("start", playerPosition.Position);
+        _player.Call("Start", _playerPosition.Position);
 
         // start countdown timer
-        startTimer.Start();
+        _startTimer.Start();
 
         // update hud score
-        UI.Call("updateScore", score);
+        _ui.Call("UpdateScore", score);
 
         // show message get ready
-        UI.Call("showMessage", "Get Ready");
+        _ui.Call("ShowMessage", "Get Ready");
 
         // play music
     }
-    public void onObstacleTimerTimeout()
+    public void ObstacleTimerTimeoutHandler()
     {
         GD.Print("spawning ground obstacle");
 
         StaticBody2D newObstacle = (StaticBody2D)groundObstacleScene.Instance();
         AddChild(newObstacle);
-        newObstacle.Position = obstacleStartPos.Position;
+        newObstacle.Position = _obstacleStartPos.Position;
 
         // rng for next timeout
-        obstacleTimer.WaitTime = (float)GD.RandRange(1.5f, 3f);
+        _obstacleTimer.WaitTime = (float)GD.RandRange(1.5f, 3f);
     }
-    public void onScoreTimerTimeout()
+    public void ScoreTimerTimeoutHandler()
     {
         score += 1;
 
-        UI.Call("updateScore", score);
+        _ui.Call("UpdateScore", score);
     }
 
-    public void onStartTimerTimeout()
+    public void StartTimerTimeoutHandler()
     {
         GD.Print("start timer timeout");
-        scoreTimer.Start();
-        obstacleTimer.Start();
+        _scoreTimer.Start();
+        _obstacleTimer.Start();
     }
 
 }

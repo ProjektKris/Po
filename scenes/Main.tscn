@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://scenes/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scenes/GroundObstacle.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scripts/Main.cs" type="Script" id=3]
 [ext_resource path="res://scenes/UI.tscn" type="PackedScene" id=4]
 
@@ -9,6 +10,7 @@ extents = Vector2( 662.69, 114.38 )
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 3 )
+groundObstacleScene = ExtResource( 2 )
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 

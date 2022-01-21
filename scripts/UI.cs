@@ -3,65 +3,58 @@ using System;
 
 public class UI : CanvasLayer
 {
-	// signals
-	[Signal] delegate void startGame();
+    // signals
+    [Signal] delegate void StartGame();
 
-	// nodes
-	private Label scoreLabel;
-	private Label message;
-	private Button startButton;
-	private Timer messageTimer;
-	public override void _Ready()
-	{
-		// assign variables
-		scoreLabel = GetNode<Label>("ScoreLabel");
-		message = GetNode<Label>("Message");
-		startButton = GetNode<Button>("StartButton");
-		messageTimer = GetNode<Timer>("MessageTimer");
+    // nodes
+    private Label _scoreLabel;
+    private Label _message;
+    private Button _startButton;
+    private Timer _messageTimer;
+    public override void _Ready()
+    {
+        // assign variables
+        _scoreLabel = GetNode<Label>("ScoreLabel");
+        _message = GetNode<Label>("Message");
+        _startButton = GetNode<Button>("StartButton");
+        _messageTimer = GetNode<Timer>("MessageTimer");
 
-		// signals
-		startButton.Connect("pressed", this, nameof(onStartButtonPressed));
-		messageTimer.Connect("timeout", this, nameof(onMessageTimerTimeout));
-	}
-	// public override void _Input(InputEvent inputEvent)
-	// {
-	// 	if (inputEvent.IsActionPressed("ui_accept"))
-	// 	{
-	// 		onStartButtonPressed();
-	// 	}
-	// }
-	public void showMessage(string text)
-	{
-		message.Text = text;
-		message.Show();
-		messageTimer.Start();
-	}
-	public async void showGameOver()
-	{
-		showMessage("Game Over");
+        // signals
+        _startButton.Connect("pressed", this, nameof(StartButtonPressedHandler));
+        _messageTimer.Connect("timeout", this, nameof(MessageTimerTimeoutHandler));
+    }
+    public void ShowMessage(string text)
+    {
+        _message.Text = text;
+        _message.Show();
+        _messageTimer.Start();
+    }
+    public async void ShowGameOver()
+    {
+        ShowMessage("Game Over");
 
-		// yield until timeout signal is fired
-		await ToSignal(messageTimer, "timeout");
+        // yield until timeout signal is fired
+        await ToSignal(_messageTimer, "timeout");
 
-		message.Text = "Po!";
-		message.Show();
-		
-		await ToSignal(GetTree().CreateTimer(1), "timeout");
+        _message.Text = "Po!";
+        _message.Show();
 
-		startButton.Show();
-	}
-	public void updateScore(int score)
-	{
-		scoreLabel.Text = score.ToString();
-	}
-	public void onStartButtonPressed()
-	{
-		startButton.Hide();
-		EmitSignal("startGame");
-	}
-	public void onMessageTimerTimeout()
-	{
-		GD.Print("message timeout: hiding message");
-		message.Hide();
-	}
+        await ToSignal(GetTree().CreateTimer(1), "timeout");
+
+        _startButton.Show();
+    }
+    public void UpdateScore(int score)
+    {
+        _scoreLabel.Text = score.ToString();
+    }
+    public void StartButtonPressedHandler()
+    {
+        _startButton.Hide();
+        EmitSignal(nameof(StartGame));
+    }
+    public void MessageTimerTimeoutHandler()
+    {
+        GD.Print("message timeout: hiding message");
+        _message.Hide();
+    }
 }
