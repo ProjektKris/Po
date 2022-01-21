@@ -1,26 +1,25 @@
 using Godot;
 using System;
+using Game;
 
 public class Main : Node2D
 {
-    [Export] PackedScene groundObstacleScene;
+    [Export] public PackedScene GroundObstacleScene;
 
-    private int score;
+    private int _score;
 
-    private RigidBody2D _player;
-    private CanvasLayer _ui;
+    private Player _player;
+    private UI _ui;
     private Timer _scoreTimer;
     private Timer _obstacleTimer;
     private Timer _startTimer;
-
     private Position2D _playerPosition;
     private Position2D _obstacleStartPos;
 
-
     public override void _Ready()
     {
-        _player = GetNode<RigidBody2D>("Player");
-        _ui = GetNode<CanvasLayer>("UI");
+        _player = GetNode<Player>("Player");
+        _ui = GetNode<UI>("UI");
         _scoreTimer = GetNode<Timer>("ScoreTimer");
         _obstacleTimer = GetNode<Timer>("ObstacleTimer");
         _startTimer = GetNode<Timer>("StartTimer");
@@ -28,16 +27,12 @@ public class Main : Node2D
         _obstacleStartPos = GetNode<Position2D>("GroundObstacleStart");
 
         // signals
-        _ui.Connect("StartGame", this, nameof(NewGame));
+        _ui.Connect(nameof(UI.StartGame), this, nameof(NewGame));
+        _player.Connect(nameof(Player.Hit), this, nameof(GameOver));
         _obstacleTimer.Connect("timeout", this, nameof(ObstacleTimerTimeoutHandler));
         _scoreTimer.Connect("timeout", this, nameof(ScoreTimerTimeoutHandler));
         _startTimer.Connect("timeout", this, nameof(StartTimerTimeoutHandler));
-        _player.Connect("Hit", this, nameof(GameOver));
     }
-    // public override void _Process(float delta)
-    // {
-
-    // }
     public void GameOver()
     {
         // stop score timer
@@ -47,7 +42,7 @@ public class Main : Node2D
         _obstacleTimer.Stop();
 
         // show hud game over
-        _ui.Call("ShowGameOver");
+        _ui.ShowGameOver();
 
         // remove old enemies
         GetTree().CallGroup("obstacle", "queue_free");
@@ -57,19 +52,19 @@ public class Main : Node2D
     public void NewGame()
     {
         // reset score
-        score = 0;
+        _score = 0;
 
         // set player position
-        _player.Call("Start", _playerPosition.Position);
+        _player.Start(_playerPosition.Position);
 
         // start countdown timer
         _startTimer.Start();
 
         // update hud score
-        _ui.Call("UpdateScore", score);
+        _ui.UpdateScore(_score);
 
         // show message get ready
-        _ui.Call("ShowMessage", "Get Ready");
+        _ui.ShowMessage("Get Ready");
 
         // play music
     }
@@ -77,7 +72,7 @@ public class Main : Node2D
     {
         GD.Print("spawning ground obstacle");
 
-        StaticBody2D newObstacle = (StaticBody2D)groundObstacleScene.Instance();
+        GroundObstacle newObstacle = (GroundObstacle)GroundObstacleScene.Instance();
         AddChild(newObstacle);
         newObstacle.Position = _obstacleStartPos.Position;
 
@@ -86,11 +81,9 @@ public class Main : Node2D
     }
     public void ScoreTimerTimeoutHandler()
     {
-        score += 1;
-
-        _ui.Call("UpdateScore", score);
+        _score += 1;
+        _ui.UpdateScore(_score);
     }
-
     public void StartTimerTimeoutHandler()
     {
         GD.Print("start timer timeout");

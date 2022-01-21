@@ -10,7 +10,7 @@ extents = Vector2( 662.69, 114.38 )
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 3 )
-groundObstacleScene = ExtResource( 2 )
+GroundObstacleScene = ExtResource( 2 )
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 

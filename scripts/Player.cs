@@ -1,100 +1,103 @@
 using Godot;
 using System;
 
-public class Player : RigidBody2D
+namespace Game
 {
-    // signals
-    [Signal] delegate void Hit();
-    // exported variables
-    [Export] public float JumpForce = 600f;
-    [Export] public float CrouchForce = 10000f;
-    [Export] public float GroundPosition = 425f;
-
-    // private variables
-    private Vector2 _screenSize;
-
-    // nodes
-    private AnimatedSprite _animatedSprite;
-    private CollisionShape2D _defaultCollision;
-    private CollisionShape2D _crouchCollision;
-
-    public override void _Ready()
+    public class Player : RigidBody2D
     {
-        // assign variables
-        _animatedSprite = GetNode<AnimatedSprite>("AnimatedSprite");
-        _defaultCollision = GetNode<CollisionShape2D>("DefaultCollision");
-        _crouchCollision = GetNode<CollisionShape2D>("CrouchCollision");
-        _screenSize = GetViewport().Size;
-
         // signals
-        Connect("body_entered", this, nameof(BodyEnteredHandler));
-    }
+        [Signal] public delegate void Hit();
+        // exported variables
+        [Export] public float JumpForce = 600f;
+        [Export] public float CrouchForce = 10000f;
+        [Export] public float GroundPosition = 425f;
 
-    public override void _Input(InputEvent inputEvent)
-    {
-        if (inputEvent.IsActionPressed("ui_up"))
+        // private variables
+        private Vector2 _screenSize;
+
+        // nodes
+        private AnimatedSprite _animatedSprite;
+        private CollisionShape2D _defaultCollision;
+        private CollisionShape2D _crouchCollision;
+
+        public override void _Ready()
         {
-            if (Position.y >= GroundPosition)
+            // assign variables
+            _animatedSprite = GetNode<AnimatedSprite>("AnimatedSprite");
+            _defaultCollision = GetNode<CollisionShape2D>("DefaultCollision");
+            _crouchCollision = GetNode<CollisionShape2D>("CrouchCollision");
+            _screenSize = GetViewport().Size;
+
+            // signals
+            Connect("body_entered", this, nameof(BodyEnteredHandler));
+        }
+
+        public override void _Input(InputEvent inputEvent)
+        {
+            if (inputEvent.IsActionPressed("ui_up"))
             {
-                LinearVelocity += new Vector2(0, -JumpForce);
-                _animatedSprite.Animation = "default";
+                if (Position.y >= GroundPosition)
+                {
+                    LinearVelocity += new Vector2(0, -JumpForce);
+                    _animatedSprite.Animation = "default";
+                }
             }
         }
-    }
-    public override void _Process(float delta)
-    {
-        if (Input.IsActionPressed("ui_down"))
+        public override void _Process(float delta)
         {
-            AppliedForce += new Vector2(0, CrouchForce);
+            if (Input.IsActionPressed("ui_down"))
+            {
+                AppliedForce += new Vector2(0, CrouchForce);
 
-            _animatedSprite.Animation = "crouch";
-            _crouchCollision.Disabled = false;
-            _defaultCollision.Disabled = true;
+                _animatedSprite.Animation = "crouch";
+                _crouchCollision.Disabled = false;
+                _defaultCollision.Disabled = true;
+            }
+            else
+            {
+                AppliedForce = new Vector2(0, 0);
+
+                _animatedSprite.Animation = "default";
+                _crouchCollision.Disabled = true;
+                _defaultCollision.Disabled = false;
+            }
         }
-        else
+        public void BodyEnteredHandler(StaticBody2D body)
         {
-            AppliedForce = new Vector2(0, 0);
+            GD.Print("on player body entered");
+            if (body.IsInGroup("obstacle"))
+            {
+                GD.Print("player collided with an obstacle");
 
-            _animatedSprite.Animation = "default";
-            _crouchCollision.Disabled = true;
-            _defaultCollision.Disabled = false;
+                Mode = RigidBody2D.ModeEnum.Static;
+
+                // hide
+                Hide();
+
+                // disable collision
+                // _defaultCollision.Disabled = true;
+                // _crouchCollision.Disabled = true;
+
+                // inform main process that the player collided with an obstacle
+                EmitSignal(nameof(Hit));
+            }
         }
-    }
-    public void BodyEnteredHandler(StaticBody2D body)
-    {
-        GD.Print("on player body entered");
-        if (body.IsInGroup("obstacle"))
+
+        public void Start(Vector2 pos)
         {
-            GD.Print("player collided with an obstacle");
+            // set position
+            Position = pos;
 
-            Mode = RigidBody2D.ModeEnum.Static;
+            GD.Print("showing player");
 
-            // hide
-            Hide();
+            // unhide
+            Show();
 
-            // disable collision
-            // _defaultCollision.Disabled = true;
-            // _crouchCollision.Disabled = true;
+            // enable collision
+            // _defaultCollision.Disabled = false;
+            // _crouchCollision.Disabled = false;
 
-            // inform main process that the player collided with an obstacle
-            EmitSignal("Hit");
+            Mode = RigidBody2D.ModeEnum.Character;
         }
-    }
-
-    public void Start(Vector2 pos)
-    {
-        // set position
-        Position = pos;
-
-        GD.Print("showing player");
-
-        // unhide
-        Show();
-
-        // enable collision
-        // _defaultCollision.Disabled = false;
-        // _crouchCollision.Disabled = false;
-
-        Mode = RigidBody2D.ModeEnum.Character;
     }
 }

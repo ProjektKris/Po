@@ -1,23 +1,25 @@
 using Godot;
 using System;
 
-public class GroundObstacle : StaticBody2D//RigidBody2D
+namespace Game
 {
-    // exported variables
-    [Export] public float Speed = 400f; // in px/s
-    [Export] public Vector2 SpawnPosition = new Vector2(1280, 450);
-    [Export] public Vector2 EndPosition = new Vector2(-100, 450);
-
-    public override void _Process(float delta)
+    public class GroundObstacle : StaticBody2D//RigidBody2D
     {
-        if (Position.x >= EndPosition.x)
+        // exported variables
+        [Export] public float Speed = 400f; // in px/s
+        [Export] public Vector2 EndPosition = new Vector2(-100, 450);
+
+        public override void _Process(float delta)
         {
-            Position -= new Vector2(Speed * delta, 0);
-        }
-        else
-        {
-            GD.Print("GroundObstacle leaving");
-            QueueFree();
+            if (Position.x >= EndPosition.x)
+            {
+                Position -= new Vector2(Speed * delta, 0);
+            }
+            else
+            {
+                GD.Print("GroundObstacle leaving");
+                QueueFree();
+            }
         }
     }
 }
